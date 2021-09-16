@@ -1,0 +1,99 @@
+\documentclass{pgnotes}
+
+\title{EC2 Linux Lab}
+
+\begin{document}
+
+\maketitle
+
+This lab exercise builds core skills for creating VPCs and EC2 instances.
+
+\section{VPC creation} 
+
+\subsection{VPC design}
+
+\begin{enumerate}
+
+\item
+  Draw out a diagram for a VPC named \texttt{LAB\_VPC} using the 10.0.0.0/16 CIDR block with one subnet using the 10.0.1.0/24 CIDR block named \texttt{LAB\_1\_SN} and an internet gateway named \texttt{LAB\_IGW}.
+
+\item 
+  Write down (in words) the two rules that should govern the network routing.
+
+\end{enumerate}
+
+\subsection{VPC creation using console} 
+
+\begin{enumerate}
+
+\item
+  Use the web console to create this VPC in AWS.
+  Use the PowerShell script \url{check_lab_vpc.ps1} to check your work.
+
+\item 
+  Delete the VPC.
+
+\end{enumerate}
+
+
+\subsection{VPC creation using CLI} 
+
+\begin{enumerate}
+
+\item
+  Use the AWS CLI (in PowerShell or Bash) to manually create the VPC using copy/paste of the IDs.
+
+\item
+    Use the PowerShell script \url{check_lab_vpc.ps1} to check your work.
+  
+\end{enumerate}
+
+\section{EC2 setup}
+
+Assuming your \texttt{LAB\_VPC} is setup already: 
+
+\begin{enumerate}
+\item Create a security group named \texttt{LAB\_SG} that allows SSH traffic inbound, and permits all traffic outbound.
+\item Upload your private key to AWS (if not already there). 
+\item Create an EC2 instance using Amazon Linux with the \texttt{t2.nano} type:
+  \begin{enumerate}
+  \item Look up the AMI ID automatically.
+  \item Attach your security group and key pair to it.
+  \item The default instance storage is fine.
+  \end{enumerate} 
+\item When the instance has started running, look at the screenshot and confirm its sitting at the login screen.
+\item Use the ssh command in PowerShell / bash to connect to it. Use \texttt{ec2-user} and your private key as credentials. You will be at a standard bash prompt.
+\item Apply system updates as suggested in the prompt.
+\end{enumerate}
+
+\subsection{EC2 termination}
+
+Terminate your EC2 instance using the AWS CLI. 
+
+
+\section{Automated setup} 
+
+\begin{enumerate} 
+  
+\item
+  Write a script in PowerShell (or Bash) to:
+  \begin{itemize}
+  \item exit immediately if a VPC named/tagged \texttt{LAB\_VPC} already exists.
+  \item setup a VPC named/tagged \texttt{LAB\_VPC} using the CIDR block given.
+  \item create one subnet named/tagged \texttt{LAB\_1\_SN} using the CIDR block given.
+  \item create an internet gateway and attach it to the VPC.
+  \item route all traffic to addresses outside of the VPC through the internet gateway
+  \end{itemize}
+
+\item
+  Write a script in Powershell (or Bash) to remove the \texttt{LAB\_VPC} you built automatically.
+  You will have to remove dependent components first.
+  Suggested steps:
+  \begin{enumerate}
+  \item Get the VPC id corresponding to the \texttt{LAB\_VPC} by parsing the JSON from the \texttt{describe-vpcs} command.
+  \item Get the internet gateway ID and delete it.    
+  \item Get the subnet ids within this VPC (there will only be one here). Make sure to filter only the relevant subnets - you may have multiple VPCs later!
+  \end{enumerate}
+\end{enumerate}
+
+\end{document}
