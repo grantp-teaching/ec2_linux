@@ -377,66 +377,6 @@ aws ec2 create-route `
 \end{verbatim}
 Re-running the describe route table command should now show two routes.
 
-\section{Parsing JSON}
-
-By now you can see that most AWS commands by default return JSON responses that contain a lot of information.
-Other formats are possible.
-
-If you wanted to script the above operation you would need to be able to parse the JSON to extract things like the VPC, subnet, internet gateway and route table IDs.
-(You can also use other utilities with the text format option.)
-AWS provide some guidance in the \href{https://docs.aws.amazon.com/cli/latest/userguide/cli-usage-output.html}{CLI usage output page}.
-
-\subsection{Powershell}
-
-In Powershell you can use the \texttt{ConvertFrom-Json} cmdlet to convert the JSON output from the AWS command to powershell objects.
-See the \href{https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/convertfrom-json?view=powershell-7}{Powershell documentation} for full details on its usage.
-We could thus convert the output from \texttt{aws ec2 describe-vpcs} to a variable named \texttt{VPCs}:
-\begin{minted}{powershell}
-# VPCs as a PowerShell object
-$VPCs = aws ec2 describe-vpcs | ConvertFrom-Json
-
-# The VPC ID of the first VPC would then be found by:
-$VPCs.Vpcs[0].VpcId
-\end{minted}
-
-If you're wondering why the \texttt{Vpcs} object is there take a look back at the JSON returned for the \texttt{aws ec2 describe-vpc} command.
-It may be more natural to de-reference the Vpcs root object immediately when converting:
-
-\begin{minted}{powershell}
-# remove the Vpcs root object by de-referencing on conversion: 
-$vpcs = (aws ec2 describe-vpcs | ConvertFrom-Json).Vpcs
-
-# The VPC ID of the first VPC would then be found by:
-$VPCs[0].VpcId
-# (simpler usage than leaving the Vpcs root object there)
-\end{minted}
-
-We will use this pattern for most AWS command output to make the powershell commands later on easier to read.
-
-\subsection{Bash}
-
-The easiest way to parse JSON in Bash is to use \texttt{jq}.
-If you're on Linux/UNIX you can install \texttt{jq} using the package manager (rpm, apt etc).
-MacPorts on Mac can install \texttt{jq} for you or you can \href{https://stedolan.github.io/jq/}{download it from GitHub}.
-
-Usage is like:
-\begin{minted}{bash}
-# store command output in variable (to avoid repeated lookups)
-VPCS=$(aws ec2 describe-vpcs)
-
-# pull out the first vpc ID (same pattern for other variables)
-echo $VPCS | jq -r .Vpcs[0].VpcId
-# or capture / store that
-VPCID=$(echo $VPCS | jq -r .Vpcs[0].VpcId)
-
-# then use as normal
-echo vpc id is $VPCID
-\end{minted}
-
-The script \url{ec2_linux_vpc_setup.ps1} will set up this environment.
-You can also run the commands manually or create the above setup in the console. 
-
-You may need to run \texttt{Unblock-File} to let the Powershell script run after downloading \href{https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/unblock-file?view=powershell-7}{as described in Microsoft's documentation}.
 
 \section{Security groups}
 
